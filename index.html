@@ -389,6 +389,46 @@
             50% { opacity: 1; }
         }
 
+        /* Effet de brouillard magique */
+        .magic-fog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            mix-blend-mode: screen;
+        }
+
+        .fog-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.gifer.com/3klZ.gif') repeat;
+            background-size: 30%;
+            opacity: 0.7;
+            animation: fogMove 60s linear infinite;
+        }
+
+        .fog-layer:nth-child(2) {
+            background-size: 40%;
+            animation: fogMove 80s linear infinite reverse;
+            opacity: 0.5;
+        }
+
+        .fog-layer:nth-child(3) {
+            background-size: 50%;
+            animation: fogMove 100s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes fogMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 1000px 500px; }
+        }
+
         @media (max-width: 1400px) {
             .game-container {
                 gap: 80px;
@@ -546,6 +586,13 @@
     <!-- Logo Disney en haut de l'écran -->
     <div class="disney-logo">
         <img src="https://i.ibb.co/Y78bG8ny/Disney-logo-svg-Photoroom.png" alt="Disney Logo">
+    </div>
+
+    <!-- Effet de brouillard magique -->
+    <div class="magic-fog">
+        <div class="fog-layer"></div>
+        <div class="fog-layer"></div>
+        <div class="fog-layer"></div>
     </div>
 
     <!-- Effet d'étoiles en arrière-plan -->
