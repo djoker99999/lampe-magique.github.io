@@ -38,6 +38,22 @@
             z-index: -1;
         }
 
+        .disney-logo {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 200px;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .disney-logo img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+        }
+
         .container {
             max-width: 1400px;
             width: 100%;
@@ -48,6 +64,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             border: 2px solid rgba(255, 215, 0, 0.3);
             position: relative;
+            margin-top: 80px;
         }
 
         .container::before {
@@ -109,13 +126,6 @@
                     0 0 50px rgba(255, 215, 0, 1),
                     0 0 100px rgba(255, 215, 0, 0.8);
             }
-        }
-
-        p {
-            font-size: 1.5rem;
-            margin-bottom: 50px;
-            line-height: 1.6;
-            color: #e0e0e0;
         }
 
         .game-area {
@@ -440,6 +450,11 @@
         }
 
         @media (max-width: 768px) {
+            .disney-logo {
+                max-width: 150px;
+                top: 15px;
+            }
+            
             h1 {
                 font-size: 2.8rem;
             }
@@ -482,6 +497,11 @@
         }
 
         @media (max-width: 480px) {
+            .disney-logo {
+                max-width: 120px;
+                top: 10px;
+            }
+            
             h1 {
                 font-size: 2.2rem;
             }
@@ -523,6 +543,11 @@
     </style>
 </head>
 <body>
+    <!-- Logo Disney en haut de l'écran -->
+    <div class="disney-logo">
+        <img src="https://i.ibb.co/Y78bG8ny/Disney-logo-svg-Photoroom.png" alt="Disney Logo">
+    </div>
+
     <!-- Effet d'étoiles en arrière-plan -->
     <div class="galaxy-stars" id="galaxyStars"></div>
 
@@ -531,8 +556,6 @@
             <h1>Choisis la Bonne Lampe et Gagne la Récompense</h1>
             <div class="title-image"></div>
         </div>
-        
-        <p>Trouve sous quelle lampe se cache la lampe magique ! Clique sur l'image pour commencer une partie.</p>
         
         <div class="game-area">
             <div class="message" id="message">Clique sur l'image pour commencer une partie !</div>
