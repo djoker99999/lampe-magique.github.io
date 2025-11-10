@@ -341,7 +341,7 @@
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
         }
 
-        .audio-button {
+        .cheat-button {
             position: fixed;
             bottom: 40px;
             right: 40px;
@@ -363,13 +363,13 @@
             backdrop-filter: blur(10px);
         }
 
-        .audio-button:hover {
+        .cheat-button:hover {
             transform: scale(1.1);
             background: rgba(255, 255, 255, 0.25);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .audio-button.active {
+        .cheat-button.active {
             background: rgba(76, 175, 80, 0.3);
             border-color: rgba(76, 175, 80, 0.6);
             box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
@@ -707,8 +707,8 @@
         </div>
     </div>
 
-    <!-- Bouton Audio (mode triche) en bas à droite -->
-    <button class="audio-button" id="audioButton">🔊</button>
+    <!-- Bouton Mode Triche en bas à droite -->
+    <button class="cheat-button" id="cheatButton">🔍</button>
 
     <script>
         // Créer les étoiles en arrière-plan
@@ -823,7 +823,7 @@
             const message = document.getElementById('message');
             const scoreDisplay = document.getElementById('score');
             const startButton = document.getElementById('startButton');
-            const audioButton = document.getElementById('audioButton');
+            const cheatButton = document.getElementById('cheatButton');
             const ballOptions = document.querySelectorAll('.ball-option');
             
             let score = 0;
@@ -992,23 +992,34 @@
                 // Animer le soulèvement de la lampe cliquée
                 cups[index].classList.add('lifted');
                 
-                // En mode triche, déplacer la lampe sous la lampe cliquée
-                if (cheatMode) {
-                    winningCup = index;
-                }
-                
                 // Après un court délai, révéler le résultat
                 setTimeout(() => {
+                    // En mode triche, la balle apparaît sous la lampe choisie
+                    // En mode normal, la balle apparaît sous une lampe différente
+                    let ballToShow;
+                    
+                    if (cheatMode) {
+                        // Mode triche : la balle est toujours sous la lampe choisie
+                        ballToShow = index;
+                    } else {
+                        // Mode normal : la balle est toujours sous une lampe différente
+                        // Choisir une lampe aléatoire qui n'est pas celle choisie par le joueur
+                        const possibleCups = [0, 1, 2].filter(cupIndex => cupIndex !== index);
+                        ballToShow = possibleCups[Math.floor(Math.random() * possibleCups.length)];
+                    }
+                    
                     // Montrer toutes les balles pour révéler où est la vraie
                     balls.forEach((ball, ballIndex) => {
                         ball.classList.remove('hidden-under-cup');
-                        if (ballIndex === winningCup) {
+                        if (ballIndex === ballToShow) {
                             ball.classList.add('visible');
                         }
                     });
                     
                     // Vérifier si le joueur a trouvé la lampe
-                    const hasWon = (index === winningCup);
+                    // En mode triche, le joueur gagne toujours
+                    // En mode normal, le joueur ne gagne jamais (car la balle est toujours ailleurs)
+                    const hasWon = cheatMode;
                     
                     if (hasWon) {
                         playSound('win');
@@ -1017,7 +1028,7 @@
                         score++;
                     } else {
                         playSound('lose');
-                        message.textContent = `Dommage ! La lampe magique était sous la lampe ${winningCup + 1}.`;
+                        message.textContent = `Dommage ! La lampe magique était sous la lampe ${ballToShow + 1}.`;
                         message.style.color = '#FF6B6B';
                     }
                     
@@ -1027,6 +1038,10 @@
                     // Réinitialiser l'animation après un délai
                     setTimeout(() => {
                         cups[index].classList.remove('lifted');
+                        balls.forEach(ball => {
+                            ball.classList.remove('visible');
+                            ball.classList.add('hidden-under-cup');
+                        });
                     }, 2000);
                 }, 800);
             }
@@ -1054,18 +1069,18 @@
             // Gérer le clic sur le bouton de démarrage
             startButton.addEventListener('click', startNewGame);
             
-            // Gérer le clic sur le bouton audio (active/désactive le mode triche)
-            audioButton.addEventListener('click', function() {
+            // Gérer le clic sur le bouton triche (active/désactive le mode triche)
+            cheatButton.addEventListener('click', function() {
                 cheatMode = !cheatMode;
                 playSound('click');
                 if (cheatMode) {
-                    audioButton.classList.add('active');
-                    audioButton.textContent = '✓';
-                    audioButton.title = 'Mode triche activé - tu gagneras toujours!';
+                    cheatButton.classList.add('active');
+                    cheatButton.textContent = '✓';
+                    cheatButton.title = 'Mode triche activé - tu gagneras toujours!';
                 } else {
-                    audioButton.classList.remove('active');
-                    audioButton.textContent = '🔊';
-                    audioButton.title = 'Mode triche désactivé - jeu normal';
+                    cheatButton.classList.remove('active');
+                    cheatButton.textContent = '🔍';
+                    cheatButton.title = 'Mode triche désactivé - jeu normal';
                 }
             });
         });
