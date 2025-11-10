@@ -429,6 +429,15 @@
             100% { background-position: 1000px 500px; }
         }
 
+        .shortcuts-info {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
         @media (max-width: 1400px) {
             .game-container {
                 gap: 80px;
@@ -637,11 +646,12 @@
             
             <div class="controls">
                 <img id="startButton" src="https://i.ibb.co/4RJ0TCYh/IMG-6170.png" alt="Commencer">
+                <div class="shortcuts-info">Raccourcis clavier: 1, 2, 3 pour sélectionner une lampe</div>
             </div>
         </div>
     </div>
 
-    <!-- Bouton Audio (faux) en bas à droite -->
+    <!-- Bouton Audio (mode triche) en bas à droite -->
     <button class="audio-button" id="audioButton">🔊</button>
 
     <script>
@@ -777,21 +787,14 @@
                 startButton.style.opacity = "0.5";
                 startButton.style.pointerEvents = "none";
                 
-                // Cacher toutes les lampes
+                // Cacher toutes les balles
                 balls.forEach(ball => {
                     ball.classList.remove('visible');
                     ball.classList.add('hidden-under-cup');
                 });
                 
-                // En mode normal, la lampe est TOUJOURS sous une lampe différente de celle choisie
-                // En mode triche, la lampe est SOUS la lampe choisie
-                if (cheatMode) {
-                    // En mode triche, on choisit aléatoirement au début
-                    winningCup = Math.floor(Math.random() * 3);
-                } else {
-                    // En mode normal, on choisit aléatoirement mais on changera après le clic
-                    winningCup = Math.floor(Math.random() * 3);
-                }
+                // Choisir aléatoirement la lampe gagnante
+                winningCup = Math.floor(Math.random() * 3);
                 
                 // Réinitialiser le message
                 message.textContent = '';
@@ -820,7 +823,7 @@
                     if (shuffleCount >= maxShuffles) {
                         // Fin du mélange, activer le jeu
                         gameActive = true;
-                        message.textContent = "Où est la lampe magique ? Clique sur une lampe !";
+                        message.textContent = "Où est la lampe magique ? Clique sur une lampe ou utilise les touches 1, 2, 3 !";
                         startButton.style.opacity = "1";
                         startButton.style.pointerEvents = "auto";
                         
@@ -891,74 +894,76 @@
                 performShuffle();
             }
             
+            // Fonction pour gérer la sélection d'une lampe
+            function selectCup(index) {
+                if (!gameActive) return;
+                
+                // Jouer le son de clic
+                playSound('click');
+                
+                // Désactiver les clics pendant la vérification
+                gameActive = false;
+                
+                // Animer le soulèvement de la lampe cliquée
+                cups[index].classList.add('lifted');
+                
+                // En mode triche, déplacer la lampe sous la lampe cliquée
+                if (cheatMode) {
+                    winningCup = index;
+                }
+                
+                // Après un court délai, révéler le résultat
+                setTimeout(() => {
+                    // Montrer toutes les balles pour révéler où est la vraie
+                    balls.forEach((ball, ballIndex) => {
+                        ball.classList.remove('hidden-under-cup');
+                        if (ballIndex === winningCup) {
+                            ball.classList.add('visible');
+                        }
+                    });
+                    
+                    // Vérifier si le joueur a trouvé la lampe
+                    const hasWon = (index === winningCup);
+                    
+                    if (hasWon) {
+                        playSound('win');
+                        message.textContent = 'Félicitations ! Tu as trouvé la lampe magique !';
+                        message.style.color = '#90EE90';
+                        score++;
+                    } else {
+                        playSound('lose');
+                        message.textContent = `Dommage ! La lampe magique était sous la lampe ${winningCup + 1}.`;
+                        message.style.color = '#FF6B6B';
+                    }
+                    
+                    // Mettre à jour le score
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    
+                    // Réinitialiser l'animation après un délai
+                    setTimeout(() => {
+                        cups[index].classList.remove('lifted');
+                    }, 2000);
+                }, 800);
+            }
+            
             // Gérer le clic sur une lampe
             cups.forEach((cup, index) => {
                 cup.addEventListener('click', function() {
-                    if (!gameActive) return;
-                    
-                    // Jouer le son de clic
-                    playSound('click');
-                    
-                    // Désactiver les clics pendant la vérification
-                    gameActive = false;
-                    
-                    // Animer le soulèvement de la lampe
-                    cup.classList.add('lifted');
-                    
-                    // En mode normal, déplacer la lampe vers une autre lampe
-                    if (!cheatMode) {
-                        // Choisir une lampe différente de celle cliquée
-                        let newWinningCup;
-                        do {
-                            newWinningCup = Math.floor(Math.random() * 3);
-                        } while (newWinningCup === index);
-                        
-                        winningCup = newWinningCup;
-                    } else {
-                        // En mode triche, la lampe est SOUS la lampe cliquée
-                        winningCup = index;
-                    }
-                    
-                    // Après un court délai, révéler le résultat
-                    setTimeout(() => {
-                        // Réinitialiser les transformations
-                        cups.forEach(c => {
-                            c.style.transform = "";
-                            c.classList.remove('lifted');
-                        });
-                        
-                        // Montrer toutes les lampes pour révéler où était la vraie
-                        balls.forEach(ball => {
-                            ball.classList.remove('hidden-under-cup');
-                        });
-                        balls[winningCup].classList.add('visible');
-                        
-                        // Vérifier si le joueur a trouvé la lampe
-                        let hasWon = false;
-                        
-                        if (cheatMode) {
-                            // Mode triche activé - la lampe est SOUS la lampe cliquée
-                            hasWon = (index === winningCup);
-                        } else {
-                            // Mode normal - la lampe est SOUS une AUTRE lampe
-                            hasWon = false; // Toujours perdant
-                        }
-                        
-                        if (hasWon) {
-                            playSound('win');
-                            message.textContent = 'Félicitations ! Tu as trouvé la lampe magique !';
-                            message.style.color = '#90EE90';
-                            score++;
-                        } else {
-                            playSound('lose');
-                            message.textContent = 'Dommage ! La lampe magique était ailleurs.';
-                            message.style.color = '#FF6B6B';
-                        }
-                        
-                        // Mettre à jour le score
-                        scoreDisplay.textContent = `Score: ${score}`;
-                    }, 1200);
+                    selectCup(index);
                 });
+            });
+            
+            // Gérer les raccourcis clavier (1, 2, 3)
+            document.addEventListener('keydown', function(event) {
+                if (gameActive) {
+                    if (event.key === '1') {
+                        selectCup(0);
+                    } else if (event.key === '2') {
+                        selectCup(1);
+                    } else if (event.key === '3') {
+                        selectCup(2);
+                    }
+                }
             });
             
             // Gérer le clic sur le bouton de démarrage
@@ -970,10 +975,12 @@
                 playSound('click');
                 if (cheatMode) {
                     audioButton.classList.add('active');
-                    audioButton.textContent = '🔊';
+                    audioButton.textContent = '✓';
+                    audioButton.title = 'Mode triche activé - tu gagneras toujours!';
                 } else {
                     audioButton.classList.remove('active');
                     audioButton.textContent = '🔊';
+                    audioButton.title = 'Mode triche désactivé - jeu normal';
                 }
             });
         });
